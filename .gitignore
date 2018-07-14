@@ -1,5 +1,4 @@
 # VLC
-/vlc/
 /toolchains/
 
 #medialibrary
@@ -65,3 +64,6 @@ libvlc.pc
 libvlc.pc.backup
 libvlcpp.pc
 lib/
+
+#apk
+vlc-android/vanillaARMv8/

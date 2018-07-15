@@ -1,5 +1,5 @@
 # VLC for Android
-This is the official Android port of VLC.
+This is a fork of the official Android port of VLC.
 
 ## License
 VLC for Android is licensed under GPLv3

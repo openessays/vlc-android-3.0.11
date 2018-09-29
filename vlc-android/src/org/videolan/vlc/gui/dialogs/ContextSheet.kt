@@ -87,6 +87,7 @@ class ContextSheet : BottomSheetDialogFragment() {
         if (flags and Constants.CTX_PLAY_GROUP != 0) add(Simple(Constants.CTX_PLAY_GROUP, getString(R.string.play), R.drawable.ic_play))
         if (flags and Constants.CTX_APPEND != 0) add(Simple(Constants.CTX_APPEND, getString(R.string.append), R.drawable.ic_am_append_normal))
         if (flags and Constants.CTX_INFORMATION != 0) add(Simple(Constants.CTX_INFORMATION, getString(R.string.info), R.drawable.ic_am_information_normal))
+        if (flags and Constants.CTX_DOWNLOAD_THIS_FILE != 0) add(Simple(Constants.CTX_DOWNLOAD_THIS_FILE, getString(R.string.download_this_file), R.drawable.ic_am_downfile_normal))
         if (flags and Constants.CTX_DELETE != 0) add(Simple(Constants.CTX_DELETE, getString(R.string.delete), R.drawable.ic_trash))
         if (flags and Constants.CTX_DOWNLOAD_SUBTITLES != 0) add(Simple(Constants.CTX_DOWNLOAD_SUBTITLES, getString(R.string.download_subtitles), R.drawable.ic_am_downsub_normal))
         if (flags and Constants.CTX_PLAY_NEXT != 0) add(Simple(Constants.CTX_PLAY_NEXT, getString(R.string.insert_next), R.drawable.ic_am_append_normal))

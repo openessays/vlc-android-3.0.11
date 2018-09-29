@@ -27,6 +27,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Message
+import android.os.Environment
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.content.ContextCompat
@@ -57,6 +58,8 @@ import org.videolan.vlc.media.PlaylistManager
 import org.videolan.vlc.util.*
 import org.videolan.vlc.viewmodels.browser.BrowserModel
 import java.util.*
+import java.nio.file.Paths
+import java.io.File
 
 const val TAG = "VLC/BaseBrowserFragment"
 
@@ -406,6 +409,7 @@ abstract class BaseBrowserFragment : MediaBrowserFragment<BrowserModel>(), IRefr
                 val isMedia = isVideo || isAudio
                 if (isMedia) flags = flags or Constants.CTX_PLAY_ALL or Constants.CTX_APPEND or Constants.CTX_INFORMATION
                 flags = if (!isAudio) flags or Constants.CTX_PLAY_AS_AUDIO else flags or Constants.CTX_ADD_TO_PLAYLIST
+                if(this@BaseBrowserFragment is NetworkBrowserFragment) flags = flags or Constants.CTX_DOWNLOAD_THIS_FILE
                 if (isVideo) flags = flags or Constants.CTX_DOWNLOAD_SUBTITLES
             }
             if (flags != 0) showContext(requireActivity(), this@BaseBrowserFragment, position, item.getTitle(), flags)
@@ -431,6 +435,13 @@ abstract class BaseBrowserFragment : MediaBrowserFragment<BrowserModel>(), IRefr
             Constants.CTX_PLAY_AS_AUDIO -> {
                 mw.addFlags(MediaWrapper.MEDIA_FORCE_AUDIO)
                 MediaUtils.openMedia(activity, mw)
+            }
+            Constants.CTX_DOWNLOAD_THIS_FILE -> {
+                // it's very hard to download this file directly. The method is to save file data while playback
+                //val wkdir = Paths.get(".").toAbsolutePath().toString()
+                //val filepath = Environment.getExternalStorageDirectory().getAbsolutePath()
+                //File(filepath, "$wkdir").writeText("Working Directory = $wkdir")
+                MediaUtils.openMediaNoUi(activity, mw)
             }
             Constants.CTX_ADD_TO_PLAYLIST -> UiTools.addToPlaylist(requireActivity(), mw.tracks, SavePlaylistDialog.KEY_NEW_TRACKS)
             Constants.CTX_DOWNLOAD_SUBTITLES -> MediaUtils.getSubs(activity, mw)

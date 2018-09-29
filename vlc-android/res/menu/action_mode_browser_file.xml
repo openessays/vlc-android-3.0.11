@@ -7,6 +7,12 @@
         android:visible="false"
         android:icon="@drawable/ic_am_information_w"
         app:showAsAction="always"/>
+    <!--item
+        android:id="@+id/action_download_this_file"
+        android:title="@string/download_this_file"
+        android:visible="false"
+        android:icon="@drawable/ic_am_downfile_w"
+        app:showAsAction="always"/-->
     <item
         android:id="@+id/action_mode_file_play"
         android:title="@string/play_all"

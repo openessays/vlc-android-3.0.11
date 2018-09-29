@@ -452,15 +452,96 @@ static ssize_t Read( stream_t *p_access, void *p_buffer, size_t i_len )
 {
     access_sys_t *p_sys = p_access->p_sys;
     int i_read;
+#if 0
+FILE *fp;
+fp = fopen("/storage/emulated/0/dl.txt", "a");
+fprintf(fp, "psz_fullpath=%s\n", p_sys->psz_fullpath);
+fprintf(fp, "psz_share=%s\n", p_sys->psz_share);
+fprintf(fp, "psz_path=%s\n", p_sys->psz_path);
+fclose(fp);
+psz_fullpath=\root
+psz_share=root
+psz_path=mit\20180819\'Dead Romance' _ Boy Girl Banjo-o4R1dGMxhLw.mkv
+#endif
+    FILE            *fp;
+    size_t          slash;
+    char            basename[8192];
+    char            downame[8192];
+    char            *buffer;
+    size_t          buffer_used;
+    size_t          buffer_left;
+    smb_stat st = smb_stat_fd( p_sys->p_session, p_sys->i_fd );
+    uint64_t sz = smb_stat_get( st, SMB_STAT_SIZE );
 
-    i_read = smb_fread( p_sys->p_session, p_sys->i_fd, p_buffer, i_len );
-    if( i_read < 0 )
+    slash = 0;
+    const char *p = p_sys->psz_path;
+    for(int i=0; *(p+i)!='\0'; i++)
     {
-        msg_Err( p_access, "read failed" );
-        return -1;
+        if(*(p+i) == '\\' || *(p+i) == '/') {
+            slash = i+1;
+        }
+    }
+    strcpy(basename, p+slash);
+
+    // absolute path
+    strcpy(downame, "/storage/emulated/0/");
+    strcat(downame, basename);
+
+    // downloaded size
+    uint64_t dsz = 0;
+    fp = fopen(downame, "r");
+    if(fp != NULL) {
+        fseek(fp, 0L, SEEK_END);
+        dsz = ftell(fp);
+        fclose(fp);
     }
 
-    return i_read;
+    // buffer used to speed up writing to disk
+    buffer_used = 0;
+    buffer_left = 32*1024*1024;
+    for(buffer = NULL; buffer == NULL; buffer_left /= 2){
+        buffer = malloc(buffer_left);
+        if(buffer != NULL){
+            break;
+        }
+    }
+    while(dsz < sz)
+    {
+        Seek( p_access, dsz );
+        i_read = smb_fread( p_sys->p_session, p_sys->i_fd, p_buffer, i_len );
+        if( i_read < 0 )
+        {
+            msg_Err( p_access, "read failed" );
+            return -1;
+        }
+        /* below if-statement cannot be deleted. It's curious 'dsz' not updated in this while-loop. */
+        if( i_read == 0 )
+        {
+            break;
+        }
+        memcpy(buffer+buffer_used, (char *)p_buffer, i_read);
+        buffer_used += i_read;
+        buffer_left -= i_read;
+        if(buffer_left < 16*1024)
+        {
+            fp = fopen(downame, "a");
+            fwrite(buffer,1, buffer_used, fp);
+            fclose(fp);
+            buffer_left += buffer_used;
+            buffer_used = 0;
+        }
+        dsz += i_read;
+    }
+
+    // write residual to disk
+    if(buffer_used > 0) {
+        fp = fopen(downame, "a");
+        fwrite(buffer,1, buffer_used, fp);
+        fclose(fp);
+    }
+    free(buffer);
+
+    return 0;
 }
 
 /*****************************************************************************

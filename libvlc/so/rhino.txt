@@ -1,0 +1,6 @@
+put C:\cygwin64\home\root\mit\vlc-android-cust\vlc\modules\access\dsm\access.c /root/vlc-android/vlc/modules/access/dsm/access.c
+put C:\cygwin64\home\root\mit\vlc-android-cust\vlc\modules\access\dsm\sd.c /root/vlc-android/vlc/modules/access/dsm/sd.c
+put C:\cygwin64\home\root\mit\vlc-android-cust\vlc\modules\access\sftp.c /root/vlc-android/vlc/modules/access/sftp.c
+get /root/vlc-android/libvlc/jni/libs/arm64-v8a/libvlcjni.so libvlcjni.so
+get /root/vlc-android/libvlc/jni/loader/libs/arm64-v8a/libjniloader.so libjniloader.so
+get /root/vlc-android/libvlc/private_libs/libs/arm64-v8a/libanw.21.so  libanw.21.so

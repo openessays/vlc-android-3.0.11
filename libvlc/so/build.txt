@@ -1,0 +1,44 @@
+https://code.videolan.org/videolan/vlc-android/issues/170
+https://en.wikipedia.org/wiki/Java_Native_Interface
+https://wiki.videolan.org/AndroidCompile/
+https://en.wikipedia.org/wiki/Application_binary_interface
+
+To-be-built packages: autoconf automake m4 libtool cmake ragel protoc ant bison flex
+                      python2
+export JAVA_HOME=/root/jdk1.8.0_171
+export ANDROID_SDK=/root/android-sdk
+export ANDROID_NDK=/root/android-ndk-r14b
+export PATH=$PATH:$ANDROID_SDK/platform-tools:$ANDROID_SDK/tools
+
+https://www.videolan.org/developers/vlc-branch/NEWS
+
+./compile.sh -a arm64 signrelease
+./compile-libvlc.sh -a arm64 signrelease
+
+cd C:\cygwin64\home\root\mit\vlc-android-cust\libvlc\so
+psftp -l root -pw ssh -b rhino.txt 192.168.1.5 & place.bat
+
+cd C:\cygwin64\home\root\mit\vlc-android-cust\vlc-android\vanillaARMv8\signedRelease
+python -m http.server 80
+
+#effect smb_file.c
+cd /root/vlc-android/vlc/contrib/contrib-android-aarch64-linux-android/libdsm
+make clean
+
+/root/vlc-android/libvlc/jni/libs/arm64-v8a/libvlcjni.so
+/root/vlc-android/libvlc/jni/loader/libs/arm64-v8a/libjniloader.so
+/root/vlc-android/libvlc/private_libs/libs/arm64-v8a/libanw.21.so
+
+***/vanillaARMv8/signedRelease/0/lib/arm64-v8a/libvlcjni.so
+***/vanillaARMv8/signedRelease/0/lib/arm64-v8a/libjniloader.so
+***/vanillaARMv8/signedRelease/0/lib/arm64-v8a/libanw.21.so
+
+copy C:\cygwin64\home\root\mit\vlc-android\libvlc\jni\libs\arm64-v8a\libvlcjni.so  C:\cygwin64\home\root\mit\vlc-android-cust\libvlc\jni\libs\arm64-v8a\libvlcjni.so
+copy C:\cygwin64\home\root\mit\vlc-android\libvlc\jni\loader\libs\arm64-v8a\libjniloader.so C:\cygwin64\home\root\mit\vlc-android-cust\libvlc\jni\loader\libs\arm64-v8a\libjniloader.so
+copy C:\cygwin64\home\root\mit\vlc-android\libvlc\private_libs\libs\arm64-v8a\libanw.21.so C:\cygwin64\home\root\mit\vlc-android-cust\libvlc\private_libs\libs\arm64-v8a\libanw.21.so
+
+http://mirrors.us.kernel.org/ubuntu-releases/18.04/ubuntu-18.04-desktop-amd64.iso
+
+sftp.c related functions:
+https://github.com/openessays/vlc-android-cust/blob/2c360c5fd63c5d843148c60f689f13d3430d51a5/vlc/src/text/url.c
+C:\cygwin64\home\root\mit\vlc-android-cust\vlc\include\vlc_url.h

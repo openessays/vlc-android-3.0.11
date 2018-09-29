@@ -90,6 +90,7 @@ struct access_sys_t
     LIBSSH2_SFTP_HANDLE* file;
     uint64_t filesize;
     char *psz_base_url;
+    char* psz_path;
 };
 
 static int AuthKeyAgent( stream_t *p_access, const char *psz_username )
@@ -468,6 +469,8 @@ static int Open( vlc_object_t* p_this )
         /* Open the given file */
         p_sys->file = libssh2_sftp_open( p_sys->sftp_session, psz_path, LIBSSH2_FXF_READ, 0 );
         p_sys->filesize = attributes.filesize;
+        p_sys->psz_path = psz_path;
+        psz_path = NULL;
 
         ACCESS_SET_CALLBACKS( Read, NULL, Control, Seek );
     }
@@ -531,15 +534,80 @@ static void Close( vlc_object_t* p_this )
 static ssize_t Read( stream_t *p_access, void *buf, size_t len )
 {
     access_sys_t *p_sys = p_access->p_sys;
+    FILE         *fp;
+    uint64_t     filesize;
+    char         *psz_path;
+    char         basename[8192];
+    char         downame[8192];
+    char         *buffer;
+    size_t       buffer_used;
+    size_t       buffer_left;
+    size_t       slash;
 
+    filesize = p_sys->filesize;
+    /* filename preceded by any and all directories */
+    psz_path = p_sys->psz_path;
+    slash = 0;
+    for(size_t i = 0; *(psz_path+i) != '\0'; ++i) {
+        if(*(psz_path+i) == '/' || *(psz_path+i) == '\\') {
+            slash = i + 1;
+        }
+    }
+    strcpy(basename, psz_path+slash);
+    // absolute path
+    strcpy(downame, "/storage/emulated/0/");
+    strcat(downame, basename);
+    buffer_used = 0;
+    buffer_left = 1*1024*1024;
+    for(buffer = NULL; buffer == NULL; buffer_left /= 2){
+        buffer = malloc(buffer_left);
+        if(buffer != NULL){
+            break;
+        }
+    }
+    // downloaded size
+    uint64_t dsz = 0;
+    fp = fopen(downame, "r");
+    if(fp != NULL) {
+        fseek(fp, 0L, SEEK_END);
+        dsz = ftell(fp);
+        fclose(fp);
+    }
+while(dsz < filesize) {
+    Seek(p_access, dsz);
     ssize_t val = libssh2_sftp_read(  p_sys->file, buf, len );
     if( val < 0 )
     {
         msg_Err( p_access, "read failed" );
         return 0;
     }
+    /* below if-statement cannot be deleted. It's curious 'dsz' not updated in this while-loop. */
+    if( val == 0 )
+    {
+        break;
+    }
+    memcpy(buffer+buffer_used, (char *)buf, val);
+    buffer_used += val;
+    buffer_left -= val;
+    if(buffer_left < 16*1024) {
+        fp = fopen(downame, "a");
+        fwrite(buffer,1, buffer_used, fp);
+        fclose(fp);
+        buffer_left +=  buffer_used;
+        buffer_used = 0;
+    }
 
-    return val;
+    dsz += val;
+}
+    //return val;
+    if(buffer_used > 0) {
+        fp = fopen(downame, "a");
+        fwrite(buffer,1, buffer_used, fp);
+        fclose(fp);
+    }
+    free(buffer);
+
+    return 0;
 }
 
 
